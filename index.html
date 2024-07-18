@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bitter:400,700">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700">
+</head>
+<body style="padding-bottom: 50px;background: rgb(0,0,0);">
+    <header class="header-dark" style="color: rgb(205,205,205);padding: 0px 0px 10px;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <h1 class="text-center" style="margin: 0px;">El-Musico</h1>
+                    <h3 class="text-center" style="color: rgba(249,255,255,0.81);font-family: Bitter, serif;">The Humanized Music Player</h3>
+                </div>
+            </div>
+        </div>
+        
+    </header>
+    <div>
+        <div class="tab-content">
+            <div class="tab-pane active" role="tabpanel" id="tab-1">
+                <section class="highlight-clean" style="background: #000; color: rgb(249,249,249);padding-top: 20px;">
+                    <div class="text-center">
+                        <select id="music-bitrate">
+                            <option value="4" selected="">320kbps(default)</option>
+                            <option value="3">160kbps</option>
+                            <option value="2">96kbps</option>
+                            <option value="1">48kbps</option>
+                        </select></div>
+                    <p class="text-center" style="padding: 0px 5px;"></p>
+                    <div class="container" style="padding: 0px;">
+                        <div class="intro">
+                            <form class="text-center" action="#" method="get">
+                                <div style="width: 95%;margin: auto;padding: 3px;" placeholder="Enter Song, Artist or Album name"><input class="form-control float-left fit-content" type="text" id="music-search-box" style="margin: 0px;color: var(--gray-dark);max-width: 100%;width: 75%;" placeholder="Enter Name, Year, Artist"><button class="btn btn-primary" id="search-trigger" type="submit" title="Search" style="text-align: center;" onclick="MusicSearch()">Search</button></div>
+                                <h5 class="text-uppercase text-center" style="color: rgb(165,255,184);">Results</h5>
+                            </form>
+                        </div>
+                            <div id="music-results" style="margin-bottom: 20px;">
+                                <h5>Featured</h5>
+                            </div>
+                            <div class="text-center" style="width:100%"><button id="loadmore" title="Load more" style="width: 100%;">Load More</button></div>
+                            <div class="button-container">
+                            </div>
+                        <div style="padding-bottom: 40px;">
+
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <div id="audio-player" style="z-index: 99;background: #ffffff33; width: 100%;margin: 0px;color: var(--light);backdrop-filter: blur(4px);border-top-left-radius: 10px;border-top-right-radius: 20px;">
+        <div class="row" style="margin: 0px;">
+            <div class="col-auto fit-content" style="padding: 0px;">
+                <img class="img-fluid d-inline" id="player-image" style="height: 75px;width: 75px;border-radius: 10px;" src="https://i.pinimg.com/originals/ed/54/d2/ed54d2fa700d36d4f2671e1be84651df.jpg" loading="eager">
+            </div>
+            <div class="col fit-content" style="padding: 0px;">
+                <div style="max-height: 24px;max-width: 95%;word-wrap: normal; padding-left: 20px;"><span id="player-name">Song</span><span><br></span><span id="player-album">Album</span></div><br>
+                <audio id="player" controls="controls" controlsList="nodownload" style="width: 100%;height: 30px; padding-left: 20px; padding-top:5px;">
+                    <source id="audioSource" src=""></source>
+                    Your browser does not support the audio format.
+                </audio>
+            </div>
+        </div>
+    </div>
+    <style>                        
+        #music-results{
+        display: flex;
+        flex-wrap: wrap;
+        }
+        @media screen and (min-width: 992px){
+            .song-container{
+                width: calc(33.33% - 20px);
+                margin: 0 10px 20px 10px;
+            }
+        }
+        @media screen and (min-width: 768px) and (max-width: 991px){
+            .song-container{
+                width: calc(50% - 20px);
+                margin: 0 10px 20px 10px;
+            }
+        }
+        @media screen and (max-width: 767px){
+            .song-container{
+                width: calc(100% - 20px);
+                margin: 0 10px 20px 10px;
+            }
+        }
+        .tooltip{
+            position: absolute;
+            background-color: #000;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            z-index: 1;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
+    <script src="functions.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>
