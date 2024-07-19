@@ -1,3 +1,12 @@
+ var songQueue = [];
+
+ function playNextSong(){
+    if (songQueue.length > 0){
+        var nextSong = songQueue.shift();
+        PlayAudio(nextSong.audio_url, nextSong.song_id);
+    }
+ }
+
 function PlayAudio(audio_url, song_id){
     var audio = document.getElementById('player');
     var source = document.getElementById('audioSource');
@@ -20,6 +29,7 @@ function PlayAudio(audio_url, song_id){
         });
     }
     audio.play(); 
+    audio.onended = playNextSong;
 };
 
 function searchSong(search_term){
@@ -29,5 +39,9 @@ function searchSong(search_term){
 }
   
 function AddToQueue(audio_url, song_id){
+    songQueue.push({audio_url: audio_url, song_id:song_id});
     var audio = document.getElementById('player');
+    if (audio.paused){
+        playNextSong();
+    }
 }
