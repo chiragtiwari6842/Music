@@ -1,0 +1,308 @@
+var results_container = document.querySelector("#music-results");
+
+var results_objects = {};
+const SearchUrl = "https://jiosaavn-api-privatecvc2.vercel.app/search/songs?query=";
+
+
+function MusicSearch(){
+    event.preventDefault();
+    var query = document.querySelector("#music-search-box").value.trim();
+    query = encodeURIComponent(query);
+    if(query == lastSearch){
+        doMusicSearch(query);
+    }
+    window.location.hash = lastSearch;
+    if(query.length > 0){
+        window.location.hash = query;
+    }
+}
+var page_index = 1;
+
+function nextPage(){
+    var query = document.querySelector("#music-search-box").value.trim();
+    if(!query){
+        query = lastSearch;
+    }
+    query = encodeURIComponent(query);
+    doMusicSearch(query, 0, true);
+}
+
+async function doMusicSearch(query,NotScroll,page) {
+    window.location.hash = query;
+    document.querySelector("#music-search-box").value = decodeURIComponent(query);
+    if(!query){
+        return 0;
+    }
+    if (!page) {
+        results_container.innerHTML = `<span class="loader">Searching</span>`;
+    }
+    // results_container.innerHTML = `<span class="loader">Searching</span>`;
+    query=query + "&limit=40";
+    if(page){
+        page_index=page_index+1;
+        query=query+"&page="+page_index;
+    } 
+    else{
+        query=query+"&page=1";
+        page_index=1;
+    }
+
+    try{
+        var response = await fetch(SearchUrl + query);
+    } 
+    catch(error){
+        results_container.innerHTML = `<span class="error">Error: ${error} <br> Check if API is down </span>`;
+    }
+    var json = await response.json();
+    if(response.status !== 200){
+        results_container.innerHTML = `<span class="error">Error: ${json.message}</span>`;
+        console.log(response)
+        return 0;   
+    }
+    var json = json.data.results;
+    var results = [];
+    if(!json){
+        results_container.innerHTML = "<p> No result found. Try other Library </p>";
+        return;
+    }
+    lastSearch = decodeURI(window.location.hash.substring(1));
+    for(let track of json){
+        song_name = TextAbstract(track.name,25);
+        album_name = TextAbstract(track.album.name,20);
+        if(track.album.name == track.name){
+            album_name = "";
+        }
+        var measuredTime = new Date(null);
+        measuredTime.setSeconds(track.duration); 
+        var play_time = measuredTime.toISOString().substr(11, 8);
+        if(play_time.startsWith("00:0")){
+            play_time = play_time.slice(4);
+        }
+        if(play_time.startsWith("00:")){
+            play_time = play_time.slice(3);
+        }
+        var song_id = track.id;
+        var year = track.year;
+        var song_image = track.image[1].link;
+        var song_artist = TextAbstract(track.primaryArtists,30);
+        var bitrate = document.getElementById('music-bitrate');
+        var bitrate_i = bitrate.options[bitrate.selectedIndex].value;
+        if(track.downloadUrl){
+            var download_url = track.downloadUrl[bitrate_i]['link'];
+            var quality = "";
+            if(bitrate_i == 4){
+                quality = 320;
+            } 
+            else{
+                quality = 160;
+            }
+        results_objects[song_id] = {
+            track: track
+        };
+        results.push(`
+        <div class="text-left song-container" style="margin-bottom:20px;border-radius:10px;background-color:#1c1c1c;padding:10px;">
+        <div class="row" style="margin:auto;">
+          <div class="col-auto" style="padding:0px;padding-right:0px;border-style:none;">
+              <img id="${song_id}-i" class="img-fluid d-inline" style="width:115px;border-radius:5px;height:115px;padding-right:10px;" src="${song_image}" loading="lazy"/>
+          </div>
+          <div class="col" style="border-style:none;padding:2px;">
+              <p class="float-right fit-content" style="margin:0px;color:#fff;padding-right:10px;">${year}</p>
+              <p id="${song_id}-n" class="fit-content" style="margin:0px;color:#fff;max-width:100%;">${song_name}</p>
+              <p id="${song_id}-a" class="fit-content" style="margin:0px;color:#fff;max-width:100%;">${album_name}<br/></p>
+              <p id="${song_id}-ar" class="fit-content" style="margin:0px;color:#fff;max-width:100%;">${song_artist}<br/></p>
+              <button class="btn btn-primary song-btn" type="button" style="margin:0px 2px;" onclick='PlayAudio("${download_url}","${song_id}")'>▶</button>
+              <button class="btn btn-primary song-btn" type="button" style="margin:0px 2px;" onclick='AddToQueue("${song_id}")'>ADD</button>
+              <p class="float-right fit-content" style="margin:0px;color:#fff;padding-right:10px;padding-top:15px;">${play_time}<br/></p>
+          </div>
+      </div>
+  </div>
+`
+); }
+    } 
+    results_container.innerHTML = results.join(' ');
+    if(!NotScroll){
+    document.getElementById("music-results").scrollIntoView();
+    }
+}
+
+function TextAbstract(text, length){
+    if(text == null){
+        return "";
+    }
+    if(text.length <= length){
+        return text;
+    }
+    text = text.substring(0, length);
+    last = text.lastIndexOf(" ");
+    text = text.substring(0, last);
+    return text + "...";
+}
+if(window.location.hash){
+    doMusicSearch(window.location.hash.substring(1));
+}
+else{
+    doMusicSearch('english', 1);
+}
+addEventListener('hashchange', event=>{ });
+onhashchange = event => {doMusicSearch(window.location.hash.substring(1))};
+
+$('#music-bitrate').on('change', function (){
+    doMusicSearch(lastSearch);
+});
+document.getElementById("loadmore").addEventListener('click',function(){
+    nextPage();
+})
+
+
+
+
+
+
+
+
+
+
+
+
+index_copy
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bitter:400,700">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700">
+</head>
+<body style="padding-bottom: 50px; background: rgb(0, 0, 0);">
+    <header class="header-dark" style="color: rgb(205, 205, 205); padding: 0px 0px 10px;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <h1 class="text-center" style="margin: 0px;">El-Musico</h1>
+                    <h3 class="text-center" style="color: rgba(249,255,255,0.81);font-family: Bitter, serif;">The Humanized Music Player</h3>   
+                </div>
+            </div>
+        </div>
+    </header>
+    <div>
+        <div class="tab-content">
+            <div class="tab-pane-active" role="tabpanel" id="tab-1">
+                <section class="highlight-clean" style="background: #000; color: rgb(249, 249, 249); padding-top: 20px;">
+                    <div class="text-center">
+                        <select id="music-bitrate">
+                            <option value="4" selected="">320kbps(default)</option>
+                            <option value="3">160kbps</option>
+                            <option value="2">96kbps</option>
+                            <option value="1">48kbps</option>
+                        </select>
+                    </div>
+                    <p class="text-center" style="padding: 0px 5px;"></p>
+                    <div class="container" style="padding: 0px;">
+                        <div class="intro">
+                            <form class="text-center" action="#" method="get">
+                                <div style="width: 95%;margin: auto;padding: 3px;" placeholder="Enter Song, Artist or Album name"><input class="form-control float-left fit-content" type="text" id="music-search-box" style="margin: 0px;color: var(--gray-dark);max-width: 100%;width: 75%;" placeholder="Enter Name, Year, Artist"><button class="btn btn-primary" id="music-search-trigger" type="submit" style="text-align: center;" onclick="MusicSearch()">Search</button></div>
+                                <h5 class="text-uppercase text-center" style="color: rgb(165,255,184);">Results</h5>
+                            </form>
+                        </div>
+                        <div id="music-results" style="margin-bottom: 20px;">
+                            <h5>Featured</h5>
+                        </div>
+                        <div class="text-center" style="width:100%"><button id="loadmore" style="width: 100%;">Load More</button></div>
+                            <div class="button-container">
+                            </div>
+                            <script>
+                                const buttonTitles = ['2023','English Songs','Edward Maya','Zack Knight','Akcent','Arijit Singh','Enrique Iglesias','Pitbull','Imran Khan', 'DJ Snake', 'Darshan Raval', 'Jubin Nautiyal', 'Armaan Malik', 'Old Songs',"Adele","Billie Eilish","Imagine Dragons","Ed Sheeran","Neha Kakkar", "Badshah", "Atif Aslam", "Guru Randhawa", "Shreya Ghoshal", "Tony Kakkar", "Harrdy Sandhu", "Armaan Malik", "Diljit Dosanjh", "Sonu Nigam", "Vishal Dadlani", "Kanika Kapoor", "Sukhwinder Singh", "Sunidhi Chauhan", "Mika Singh", "Shaan", "Mohit Chauhan", "Pritam", "KK", "Yo Yo Honey Singh","Taylor Swift","Sia","Radioactive","Halsey","The Chainsmokers","Drake","Justin Bieber","Beyonce","The Weeknd","Rihanna","Lady Gaga","AC/DC","Michael Jackson","The Rolling Stones"];
+                                const buttonContainer = document.querySelector('.button-container');
+
+                                buttonTitles.forEach(title => {
+                                const button = document.createElement('button');
+                                button.classList.add('search-toggle');
+                                button.textContent = title;
+                                button.setAttribute('onclick', `doMusicSearch('${title}')`);
+                                buttonContainer.appendChild(button);
+                                });
+                            </script>
+                            <div style="padding-bottom: 40px;">
+
+                            </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div id="audio-player" style="z-index: 99;background: black; opacity: 85%; width: 100%;margin: 0px;color: var(--light);backdrop-filter: blur(4px);border-top-left-radius: 10px;border-top-right-radius: 20px;">
+        <div class="row" style="margin: 0px;">
+            <div class="col-auto fit-content" style="padding: 0px;">
+                <button class="btn btn-primary song-btn" type="button" style="margin:0px 2px;">  ^  </button>
+                <img class="img-fluid d-inline" id="player-image" style="height: 75px;width: 75px;border-radius: 10px;" src="https://i.pinimg.com/originals/ed/54/d2/ed54d2fa700d36d4f2671e1be84651df.jpg" loading="eager">
+            </div>
+            <div class="col fit-content" style="padding: 0px;">
+                <div style="max-height: 24px;max-width: 95%;word-wrap: normal; padding-left: 20px;"><span id="player-name">Song</span><span><br></span><span id="player-album">Album</span></div><br>
+                <audio id="player" controls="controls" controlsList="nodownload" style="width: 100%;height: 30px; padding-left: 20px; padding-top:5px;">
+                    <source id="audioSource" src=""></source>
+                </audio>
+            </div>
+        </div>
+    </div>
+
+   
+
+    <style> 
+        #music-results{
+            display: flex;
+            flex-wrap: wrap;
+        }
+        @media screen and (min-width: 992px){
+            .song-container{
+                width: calc(33.33% - 20px);
+                margin: 0 10px 20px 10px;
+            }
+        }
+        @media screen and (min-width: 768px) and (max-width: 991px) {
+            .song-container{
+                width: calc(50% - 20px);
+                margin: 0 10px 20px 10px;
+            }
+        }
+        @media screen and (max-width: 767px) {
+            .song-container{
+                width: calc(100% - 20px);
+                margin: 0 10px 20px 10px;
+            }
+        }
+        ul.nobullets {
+            list-style-type: none; 
+            padding: 0; 
+            margin: 0; 
+        }
+        .search-toggle-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        width: 95%;
+        margin: 0 auto;
+        }
+        .search-toggle {
+        background: rgba(0, 0, 0, 0.1);
+        color: #fff;
+        font-size: 18px;
+        font-family: Aclonica, sans-serif;
+        padding: 6px;
+        border-style: none;
+        }
+        .search-toggle:nth-child(10n+1){color:#ceea82}.search-toggle:nth-child(10n+2){color:#70cee2}.search-toggle:nth-child(10n+3){color:#ef2b2d}.search-toggle:nth-child(10n+4){color:#23b805}.search-toggle:nth-child(10n+5){color:var(--primary)}.search-toggle:nth-child(10n+6){color:#cee007}.search-toggle:nth-child(10n+7){color:#ff77a8}.search-toggle:nth-child(10n+8){color:#21a9af}.search-toggle:nth-child(10n+9){color:var(--warning)}.search-toggle:nth-child(10n+10){color:#e316e7}
+
+    </style>
+    <script src="functions.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>
