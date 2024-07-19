@@ -100,7 +100,7 @@ async function doMusicSearch(query,NotScroll,page){
                         <p id="${song_id}-a" class="fit-content" style="margin:0px;color:#fff;max-width:100%;">${album_name}<br/></p>
                         <p id="${song_id}-ar" class="fit-content" style="margin:0px;color:#fff;max-width:100%;">${song_artist}<br/></p>
                         <button class="btn btn-primary song-btn" type="button" style="margin:0px 2px;" title="Play" onclick='PlayAudio("${download_url}","${song_id}")'>▶</button>
-                        <button class="btn btn-primary song-btn" type="button" style="margin:0px 2px;" title="Add to Queue" onclick='AddToQueue("${download_url}","${song_id}")'>ADD</button>
+                        <button class="btn btn-primary song-btn" type="button" style="margin:0px 2px;" title="Add to Queue" onclick='AddToQueue("${download_url}","${song_id}")'><img src="add-to-queue.png" style="width:25px;height:25px"display:flex;align-items:center;></button>
                         <p class="float-right fit-content" style="margin:0px;color:#fff;padding-right:10px;padding-top:15px;">${play_time}<br/></p>
                     </div>
                 </div>
